@@ -21,7 +21,8 @@ variable {α : Type*} [DecidableEq α]
 
 variable (m : Matrix α  α ℕ)
 
-/-- Definition of Coxeter matrices:
+/--
+Definition of Coxeter matrices:
 A square matrix $m$ with non-negative integer entries is a Coxeter matrix if it is symmetric, that is, $m_{a,b} = m_{b,a}$ for any (a,b);
 the entry $m_{a,b}$ is $1$ if and only if $a=b$.
 --/
@@ -36,9 +37,12 @@ namespace CoxeterMatrix
 
 variable {α} (m : Matrix α α ℕ) [hm: CoxeterMatrix m]
 
---variable {m' : Matrix α α ℕ} [hm': CoxeterMatrix m']
+/-
+For the rest of this section, we fix a Coxeter matrix m index by type α with entries in ℕ
+-/
 
 /--
+This part introduce three lemmas rewriting the definitions.
 --/
 lemma one_iff :∀ (a b:α), m a b = 1 ↔ a=b := hm.oneIff
 
@@ -49,8 +53,15 @@ lemma off_diagonal_ne_one {s : α} : s ≠ t → m s t ≠ 1 := by simp [hm.oneI
 
 local notation  "F" => FreeGroup α
 
+/-
+For any s and t of type α, and a natural number we define a element (st)^n
+(relation) in the free group F
+-/
 @[simp] def toRelation (s t : α) (n : ℕ ) : F := (FreeGroup.of s * FreeGroup.of t)^n
 
+/-
+For any s of type α × α, we define a relation in the free group F by $(s_1 s_2)^(m_{s_1, s_2})$
+-/
 @[simp] def toRelation'  (s : α × α ) : F :=toRelation s.1 s.2 (m s.1 s.2)
 
 def toRelationSet : (Set F) := Set.range <| toRelation' m
@@ -72,12 +83,17 @@ abbrev SimpleRefl := Set.range (of m)
 
 local notation "S" => (SimpleRefl m)
 
+/-
+Let $T = ∪_{s ∈ S} g s g ^{-1}$ be the set of reflections.
+-/
 @[simp]
 abbrev Refl : Set G := Set.range <| fun ((g, s) : G × S) => g * s * g⁻¹
 
 local notation "T" => (Refl m)
 
-
+/-
+Lemma: For any $g ∈ G$, if $G ∈ S$, then $G ∈ T$.
+-/
 
 @[simp]
 lemma SimpleRefl_subset_Refl : ∀ {g : G}, g ∈ S → g ∈ T := by
@@ -85,6 +101,9 @@ lemma SimpleRefl_subset_Refl : ∀ {g : G}, g ∈ S → g ∈ T := by
   use ⟨1, ⟨g, by rw [Set.mem_range]; use s⟩⟩
   simp
 
+/-
+Huanchen: I do not understand this part of the codes.
+-/
 @[simp]
 def toSimpleRefl (a : α) : SimpleRefl m := ⟨of m a, by simp⟩
 
@@ -94,7 +113,8 @@ instance coe_group: Coe α (toGroup m) where
 instance coe_simple_refl: Coe α (SimpleRefl m) where
   coe := toSimpleRefl m
 
-def liftHom_aux {A:Type*} [Group A] (f : α → A)  (h : ∀ (s t: α ), (f s * f t)^(m s t) = 1) : ∀ r ∈ toRelationSet m, (FreeGroup.lift f) r = 1 := by
+def liftHom_aux {A:Type*} [Group A] (f : α → A)  (h : ∀ (s t: α ), (f s * f t)^(m s t) = 1) :
+ ∀ r ∈ toRelationSet m, (FreeGroup.lift f) r = 1 := by
   intro r hr
   obtain ⟨⟨s,t⟩,hst⟩ := hr
   simp only [toRelation', toRelation] at hst

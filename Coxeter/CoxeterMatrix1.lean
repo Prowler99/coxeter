@@ -21,6 +21,10 @@ variable {α : Type*} [DecidableEq α]
 
 variable (m : Matrix α  α ℕ)
 
+/-- Definition of Coxeter matrices:
+A square matrix $m$ with non-negative integer entries is a Coxeter matrix if it is symmetric, that is, $m_{a,b} = m_{b,a}$ for any (a,b);
+the entry $m_{a,b}$ is $1$ if and only if $a=b$.
+--/
 class CoxeterMatrix : Prop where
   symmetric : ∀ (a b : α ), m a b = m b a
   oneIff: ∀  (a b : α), m a b = 1 ↔ a=b
@@ -29,11 +33,13 @@ end
 open Classical
 
 namespace CoxeterMatrix
+
 variable {α} (m : Matrix α α ℕ) [hm: CoxeterMatrix m]
 
 --variable {m' : Matrix α α ℕ} [hm': CoxeterMatrix m']
 
-
+/--
+--/
 lemma one_iff :∀ (a b:α), m a b = 1 ↔ a=b := hm.oneIff
 
 lemma diagonal_one {s : α} : m s s = 1 := by rw [hm.oneIff]

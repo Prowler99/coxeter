@@ -7,14 +7,21 @@ open OrderTwoGen HOrderTwoGenGroup
 namespace CoxeterGroup
 namespace Bruhat
 
+/-Let G be a Coxeter group-/
 variable {G : Type*} [CoxeterGroup G]
 
+/- For any u, w ∈ G,
+we say u ≤ w if there exists a reflection t such that w = u t and ℓ(u) < ℓ(w)-/
 @[simp]
 abbrev lt_adj (u w : G) := ∃ t ∈ Refl G, w = u * t ∧ ℓ(u) < ℓ(w)
 
+/- For any u, w ∈ G,
+we say u ≤' w if there exists a reflection t such that w = t u and ℓ(u) < ℓ(w)-/
 @[simp]
 abbrev lt_adj' (u w : G) := ∃ t ∈ Refl G, w = t * u ∧ ℓ(u) < ℓ(w)
 
+/- Lemma: For any u ,w ∈ G, we have u ≤ w if and only if u ≤' w.
+-/
 lemma lt_adj_iff_lt_adj' {u w : G} : lt_adj u w ↔ lt_adj' u w := by
   constructor
   · rintro ⟨t, ⟨trfl, wut, ulew⟩⟩
@@ -42,8 +49,13 @@ lemma lt_adj_iff_lt_adj' {u w : G} : lt_adj u w ↔ lt_adj' u w := by
       group
     exact ⟨uturfl, wexp, ulew⟩
 
+/- We define a relation < on G by the transitive closure of <
+-/
 abbrev lt (u w : G) := Relation.TransGen Bruhat.lt_adj u w
 
+/- We define a relation ≤  on G by the transitive closure of <
+and the relation w ≤ w for any w ∈ G.
+-/
 abbrev le (u w : G) := Relation.ReflTransGen Bruhat.lt_adj u w
 
 /-instance Bruhat.LT {G:Type*} [CoxeterGroup G] : LT G where
@@ -52,6 +64,8 @@ abbrev le (u w : G) := Relation.ReflTransGen Bruhat.lt_adj u w
 instance Bruhat.LE {G:Type*} [CoxeterGroup G] : LE G where
   le := le-/
 
+/- Lemma: let u, w ∈ G be such that u ≤ w, then we have ℓ(u) ≤ ℓ(w).
+-/
 lemma length_le_of_le {u w : G} : le u w → ℓ(u) ≤ ℓ(w) := by
   rw [le]
   intro trans
@@ -61,6 +75,8 @@ lemma length_le_of_le {u w : G} : le u w → ℓ(u) ≤ ℓ(w) := by
     rcases bltc with ⟨_, ⟨_, _, bltc⟩⟩
     exact le_of_lt (lt_of_le_of_lt uleb bltc)
 
+/- Lemma: let u, w ∈ G be such that u < w, then we have ℓ(u) < ℓ(w).
+-/
 lemma length_lt_of_lt {u w : G} : lt u w → ℓ(u) < ℓ(w) := by
   rw [lt]
   intro trans
@@ -72,6 +88,7 @@ lemma length_lt_of_lt {u w : G} : lt u w → ℓ(u) < ℓ(w) := by
     rcases bltc with ⟨_, ⟨_, _, bltc⟩⟩
     exact lt_trans ultb bltc
 
+/- Lemma: let u, w ∈ G be such that u ≤ w and ℓ(u) < ℓ(w), then we have u < w. -/
 lemma lt_of_le_of_length_lt {u w : G} : le u w → ℓ(u) < ℓ(w) → lt u w := by
   intro ulew ultw
   induction ulew with
@@ -80,12 +97,19 @@ lemma lt_of_le_of_length_lt {u w : G} : le u w → ℓ(u) < ℓ(w) → lt u w :=
     refine Relation.TransGen.tail'_iff.mpr ?tail.intro.intro.intro.a
     exact ⟨_, hyp, bltc⟩
 
+
+/-
+Lemma: let u, w ∈ G be such that u ≤ w and ℓ(u) ≥  ℓ(w), then we have u = w
+-/
 lemma eq_of_le_of_length_ge {u w : G} : le u w → ℓ(u) ≥ ℓ(w) → u = w := by
   intro ulew ugew
   rcases ulew with (_ | ⟨uleb, b, ⟨_, _, bltw⟩⟩)
   · rfl
   · by_contra; linarith [length_le_of_le uleb, bltw, ugew]
 
+
+/- Instance: The relations (<, ≤) defined a partial order on G
+-/
 instance PartialOrder : PartialOrder G where
   le := le
   lt := lt
@@ -112,6 +136,12 @@ instance PartialOrder : PartialOrder G where
     eq_of_le_of_length_ge ulew (length_le_of_le wleu)
 
 
+/-
+Definition: For any x y ∈ G, we define the interval [x,y] = {z ∈ G | x ≤ z ≤ y}
+-/
+/-
+Q: We need to prove the interval is also an instance of poset.
+-/
 def Interval (x y : G) : Set G := Set.Icc x y
 
 local notation "S" => (SimpleRefls G)

@@ -17,6 +17,12 @@ def bounded (P : Type*) [PartialOrder P] : Prop := ∃ (x y : P), ∀ z : P, (x 
 
 /- Notations for mininal and maximal. -/
 
+def max {P : Type*} [PartialOrder P] (y : P) := ∀ z : P, z ≤ y
+
+def min {P : Type*} [PartialOrder P] (x : P) := ∀ z : P, x ≤ z
+
+/- How to denote the maximal element and the minimal element by max P and min P? -/
+
 /- Definition: We say a is covered by b if x < y and there is no element z such that x < z < y. -/
 def ledot (a b : P) := a < b ∧ (∀ {c : P}, (a ≤ c ∧ c ≤ b) → (a = c ∨ b = c))
 
@@ -68,6 +74,7 @@ def CL_labelling (P : Type*) [PartialOrder P] (h: graded P): Prop := sorry
 How to hide the graded assmption.
 
 -/
+
 /-
 Definition: Let λ be an edge labelling of P and let x_0 ⋖ x_1 ⋖ ⋯ ⋖ x_n be a maximal chain. The
 chain is called increasing if λ(x_0 ⋖ x_1) ≤ λ(x_1 ⋖ x_2) ≤ ⋯ ≤ λ(x_{n-1}} ⋖ x_n).

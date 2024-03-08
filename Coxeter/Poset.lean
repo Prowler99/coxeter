@@ -10,8 +10,9 @@ namespace Shelling
 -/
 
 /- Let P be a finite poet. -/
-variable {P : Type*} [PartialOrder P] [Finite P]
+variable {P : Type*} [PartialOrder P] [Bot P] [Top P]
 
+#check (⊥:P)
 /- Definition: We say a poset P is bounded, if it has a unique minimal and a unique maximal element. -/
 def bounded (P : Type*) [PartialOrder P] : Prop := ∃ (x y : P), ∀ z : P, (x ≤ z ∧ z ≤ y)
 
@@ -26,13 +27,16 @@ def min {P : Type*} [PartialOrder P] (x : P) := ∀ z : P, x ≤ z
 /- Definition: We say a is covered by b if x < y and there is no element z such that x < z < y. -/
 def ledot (a b : P) := a < b ∧ (∀ {c : P}, (a ≤ c ∧ c ≤ b) → (a = c ∨ b = c))
 
+/- Notation: We denote the cover relation by x ⋖ y -/
+notation a "⋖ " b => ledot a b
+
 /- Defintion: We define the set of edges of P as set of all pairs (a,b) such that a is covered by b.-/
 def edges (P : Type*) [PartialOrder P] : Set (P × P) := {(a, b) | ledot a b }
 
-/- Notation: We denote the cover relation by x ⋖ y -/
+
 
 /- Definition: We define an edge labelling of P as a function from the set of cover relations to another poset A.-/
-def EL (P A : Type*) [PartialOrder P] [PartialOrder A] := edges P → A
+def EL (P A : Type*) [PartialOrder P] := edges P → A
 
 /-
 Definition: A chain in the poset P is a finite sequence x₀ < x₁ < ⋯ < x_n.

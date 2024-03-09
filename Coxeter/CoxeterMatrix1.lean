@@ -702,7 +702,16 @@ lemma eta_t (t : T) : eta (t : G) t = μ₂.gen := by sorry
   -- rw [eta_lift_eta_aux, eta_aux, if_pos rfl]
 
 lemma pi_eval (g : G) (t : T) (ε : μ₂): ReflRepn.pi g (t, ε) = (⟨(g : G) * t * (g : G)⁻¹, OrderTwoGen.Refl.conjugate_closed⟩, ε * eta g⁻¹ t) := by
-  sorry
+  rcases toGroup_expression m g with ⟨L, gprod⟩
+  induction L with
+  | nil =>
+    rw [gprod_nil] at gprod
+    rw [gprod]
+    simp only [map_one, Equiv.Perm.coe_one, id_eq,
+      one_mul, inv_one, mul_one, Prod.mk.injEq, self_eq_mul_right, true_and]
+    rw [eta, inv_one]
+    simp only [map_one, Equiv.Perm.coe_one, id_eq]
+  | cons hd tail ih => sorry
 
 
 end ReflRepresentation

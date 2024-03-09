@@ -701,6 +701,7 @@ lemma eta_equiv_nn' {L : List S} {t : T} : eta L t = (μ₂.gen) ^ (nn L t) := b
 lemma eta_t (t : T) : eta (t : G) t = μ₂.gen := by sorry
   -- rw [eta_lift_eta_aux, eta_aux, if_pos rfl]
 
+-- DLevel 5
 lemma pi_eval (g : G) (t : T) (ε : μ₂): ReflRepn.pi g (t, ε) = (⟨(g : G) * t * (g : G)⁻¹, OrderTwoGen.Refl.conjugate_closed⟩, ε * eta g⁻¹ t) := by
   rcases toGroup_expression m g with ⟨L, gprod⟩
   induction L with
@@ -711,7 +712,12 @@ lemma pi_eval (g : G) (t : T) (ε : μ₂): ReflRepn.pi g (t, ε) = (⟨(g : G) 
       one_mul, inv_one, mul_one, Prod.mk.injEq, self_eq_mul_right, true_and]
     rw [eta, inv_one]
     simp only [map_one, Equiv.Perm.coe_one, id_eq]
-  | cons hd tail ih => sorry
+  | cons hd tail ih =>
+    rw [gprod_cons] at gprod
+    rw [gprod]
+    simp only [eta, inv_inv, mul_inv_rev, ← mul_assoc]
+    rw [ReflRepn.pi.map_mul]
+    sorry
 
 
 end ReflRepresentation

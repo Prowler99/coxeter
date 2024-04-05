@@ -288,13 +288,21 @@ variable {G : Type*} {w : G} [hG:CoxeterGroup G]
 -- some lemmas are symmetric, such as muls_twice : w*s*s = w, the symm version is s*s*w = w.
 -- this section only contain lemmas that needed in Hecke.lean, you can also formulate the symms if u want.
 lemma leftDescent_NE_of_ne_one (h : w ≠ 1) : Nonempty $ leftDescent w := by
-  obtain ⟨L, hL⟩ := @exists_reduced_word G _ hG.S SimpleRefls.toOrderTwoGen' w
-  have : L ≠ [] := by
-    contrapose! h
-    rw [hL.2, h, gprod_nil]
-  -- idea: take and use first element of L
-  -- maybe we can use induction instead? perhaps
-  sorry
+  revert h
+  have : (1 : G) ≠ 1 → Nonempty (leftDescent (1 : G)) := by
+    intro h; contradiction
+  refine gen_induction_reduced_word_left (S := hG.S)
+    (p := fun g ↦ g ≠ 1 → Nonempty (leftDescent g)) w this ?Hmul
+  intro s L hr _ _
+  use s
+  simp only [leftDescent, leftAssocRefls]
+  refine And.intro (And.intro (SimpleRefl_is_Refl s.2) ?_) s.2
+  nth_rw 1 [gprod_cons]
+  rw [← mul_assoc, gen_square_eq_one' s, one_mul]
+  have : reduced_word L := reduced_drop_of_reduced hr 1
+  simp only [HOrderTwoGenGroup.length]
+  rw [← length_eq_iff.mp this, ← length_eq_iff.mp hr]
+  simp
 
 -- same idea: take and use last element of L
 lemma rightDescent_NE_of_ne_one (h : w ≠ 1) : Nonempty $ rightDescent w := sorry

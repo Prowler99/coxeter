@@ -287,11 +287,20 @@ variable {G : Type*} {w : G} [hG:CoxeterGroup G]
 -- for convenience, the statements also use [CoxeterGroup G]
 -- some lemmas are symmetric, such as muls_twice : w*s*s = w, the symm version is s*s*w = w.
 -- this section only contain lemmas that needed in Hecke.lean, you can also formulate the symms if u want.
-lemma leftDescent_NE_of_ne_one  (h : w ≠ 1) : Nonempty $ leftDescent w:= sorry
+lemma leftDescent_NE_of_ne_one (h : w ≠ 1) : Nonempty $ leftDescent w := by
+  obtain ⟨L, hL⟩ := @exists_reduced_word G _ hG.S SimpleRefls.toOrderTwoGen' w
+  have : L ≠ [] := by
+    contrapose! h
+    rw [hL.2, h, gprod_nil]
+  -- idea: take and use first element of L
+  -- maybe we can use induction instead? perhaps
+  sorry
 
-lemma rightDescent_NE_of_ne_one  (h : w ≠ 1) : Nonempty $ rightDescent w:= sorry
+-- same idea: take and use last element of L
+lemma rightDescent_NE_of_ne_one (h : w ≠ 1) : Nonempty $ rightDescent w := sorry
 
-lemma ne_one_of_length_smul_lt {s : hG.S} {w:G} (lt: ℓ(s*w) < ℓ(w)) : w ≠ 1:= sorry
+
+lemma ne_one_of_length_smul_lt {s : hG.S} {w : G} (lt : ℓ(s*w) < ℓ(w)) : w ≠ 1 := sorry
 
 lemma length_smul_neq (s:hG.S) (w:G) : ℓ(s*w) ≠ ℓ(w) := sorry
 
@@ -307,11 +316,12 @@ lemma length_smul_of_length_gt {s : hG.S} {w:G} (gt: ℓ(w) < ℓ(s*w)) : ℓ(s*
 
 lemma length_muls_of_length_gt {s : hG.S} {w:G} (gt: ℓ(w) < ℓ(w*s)) : ℓ(w*s) = ℓ(w) + 1 := sorry
 
-lemma length_muls_of_mem_leftDescent  (h : w ≠ 1) (s : leftDescent w) : ℓ(s*w) = ℓ(w) - 1 :=sorry
+lemma length_muls_of_mem_leftDescent (h : w ≠ 1) (s : leftDescent w) : ℓ(s * w) = ℓ(w) - 1 := sorry
 
-lemma length_muls_of_mem_rightDescent  (h : w ≠ 1) (s : rightDescent w) : ℓ(w*s) = ℓ(w) - 1 :=sorry
+lemma length_muls_of_mem_rightDescent (h : w ≠ 1) (s : rightDescent w) : ℓ(w * s) = ℓ(w) - 1 :=sorry
 
-lemma muls_twice (w:G) (s:hG.S) : w*s*s = w := sorry
+lemma muls_twice (w : G) (s : hG.S) : w * s * s = w := by
+  rw [mul_assoc, gen_square_eq_one' s, mul_one]
 
 lemma smul_eq_muls_of_length_eq (s t:hG.S) (w:G) :ℓ(s*w*t) = ℓ(w) ∧ ℓ(s*w)=ℓ(w*t) → s*w=w*t:= sorry
 

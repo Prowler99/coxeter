@@ -279,6 +279,21 @@ def leftDescent (w : G) [hG:CoxeterGroup G] := leftAssocRefls w ∩ hG.S
 
 def rightDescent (w : G) [hG:CoxeterGroup G] := rightAssocRefls w ∩ hG.S
 
+lemma rightDescent_inv_eq_leftDescent (w : G) [hG : CoxeterGroup G] :
+    rightDescent w⁻¹ = leftDescent w := by
+  simp only [leftDescent, rightDescent, rightAssocRefls,
+    leftAssocRefls, HOrderTwoGenGroup.length]
+  ext s
+  have h1 (hs : s ∈ S) : OrderTwoGen.length hG.S (w⁻¹ * s) = OrderTwoGen.length hG.S (s * w) := by
+    nth_rw 1 [inv_eq_self (S := hG.S) s hs]
+    rw [← mul_inv_rev]
+    exact (@length_eq_inv_length G _ hG.S).symm
+  have h2 : OrderTwoGen.length hG.S w⁻¹ = OrderTwoGen.length hG.S w :=
+    (@length_eq_inv_length G _ hG.S).symm
+  constructor
+  · exact fun h ↦ ⟨⟨h.1.1, (by rw [← h1 h.2, ← h2]; exact h.1.2)⟩, h.2⟩
+  · exact fun h ↦ ⟨⟨h.1.1, (by rw [h1 h.2, h2]; exact h.1.2)⟩, h.2⟩
+
 section HeckeAux
 variable {G : Type*} {w : G} [hG:CoxeterGroup G]
 
@@ -295,24 +310,29 @@ lemma leftDescent_NE_of_ne_one (h : w ≠ 1) : Nonempty $ leftDescent w := by
     (p := fun g ↦ g ≠ 1 → Nonempty (leftDescent g)) w this ?Hmul
   intro s L hr _ _
   use s
-  simp only [leftDescent, leftAssocRefls]
+  simp only [leftDescent, leftAssocRefls, HOrderTwoGenGroup.length]
   refine And.intro (And.intro (SimpleRefl_is_Refl s.2) ?_) s.2
   nth_rw 1 [gprod_cons]
   rw [← mul_assoc, gen_square_eq_one' s, one_mul]
   have : reduced_word L := reduced_drop_of_reduced hr 1
-  simp only [HOrderTwoGenGroup.length]
   rw [← length_eq_iff.mp this, ← length_eq_iff.mp hr]
   simp
 
--- same idea: take and use last element of L
-lemma rightDescent_NE_of_ne_one (h : w ≠ 1) : Nonempty $ rightDescent w := sorry
+lemma rightDescent_NE_of_ne_one (h : w ≠ 1) : Nonempty $ rightDescent w := by
+  rw [← inv_inv w, rightDescent_inv_eq_leftDescent]
+  have : w⁻¹ ≠ 1 := by contrapose! h; exact inv_eq_one.mp h
+  exact leftDescent_NE_of_ne_one this
 
+lemma ne_one_of_length_smul_lt {s : hG.S} {w : G} (lt : ℓ(s * w) < ℓ(w)) : w ≠ 1 := by
+  have : 0 < HOrderTwoGenGroup.length w := lt_of_le_of_lt (Nat.zero_le _) lt
+  contrapose! this
+  rw [HOrderTwoGenGroup.length]
+  apply (length_zero_iff_one (S := hG.S)).mpr at this
+  rw [this]
 
-lemma ne_one_of_length_smul_lt {s : hG.S} {w : G} (lt : ℓ(s*w) < ℓ(w)) : w ≠ 1 := sorry
+lemma length_smul_neq (s : hG.S) (w : G) : ℓ(s * w) ≠ ℓ(w) := sorry
 
-lemma length_smul_neq (s:hG.S) (w:G) : ℓ(s*w) ≠ ℓ(w) := sorry
-
-lemma length_muls_neq (w:G) (t:hG.S) : ℓ(w*t) ≠ ℓ(w) := sorry
+lemma length_muls_neq (w : G) (s : hG.S) : ℓ(w * s) ≠ ℓ(w) := sorry
 
 lemma length_diff_one {s:hG.S} {g : G} : ℓ(s*g) = ℓ(g) + 1  ∨ ℓ(g) = ℓ(s*g) + 1 :=sorry
 

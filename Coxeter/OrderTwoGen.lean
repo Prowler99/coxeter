@@ -536,14 +536,14 @@ lemma Refl.mul_SimpleRefl_in_Refl (s : S) (t : T) : (s : G) * t * (s : G) ∈ T 
 /-- If `p : T → Prop` holds for all elements in S and it is preserved under
 multiplication on both sides by elements in s, then it holds for all elements
 of `T`. -/
-theorem Refl.induction' {p : T → Prop} (t : T) (Hs : ∀ s : S, p ⟨s.val, SimpleRefl_subset_Refl (Subtype.mem s)⟩)
+theorem Refl.induction' {p : T → Prop} (t : T) (Hs : ∀ s : S, p ⟨s.val, SimpleRefl_is_Refl (Subtype.mem s)⟩)
     (Hmul : ∀ (t : T) (s : S), p t → p ⟨(s : G) * t * s, Refl.mul_SimpleRefl_in_Refl s t⟩) : p t := by
   rcases Subtype.mem t with ⟨g, s, tgsg⟩
   have : t = ⟨t.1, ⟨g, s, tgsg⟩⟩ := rfl
   rw [this]
   simp only [tgsg]
   have gsgT (g : G) (s : S) : g * s * g⁻¹ ∈ T :=
-    @Refl.conjugate_closed _ _ _ _ g ⟨s.val, SimpleRefl_subset_Refl (Subtype.mem s)⟩
+    @Refl.conjugate_closed _ _ _ _ g ⟨s.val, SimpleRefl_is_Refl (Subtype.mem s)⟩
   refine @gen_induction_left G _ S _ (fun g ↦ p ⟨g * s * g⁻¹, gsgT g s⟩) g ?h1 ?hmul
   · group; exact Hs s
   · intro s' g' hp

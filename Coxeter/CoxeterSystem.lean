@@ -330,11 +330,28 @@ lemma ne_one_of_length_smul_lt {s : hG.S} {w : G} (lt : ℓ(s * w) < ℓ(w)) : w
   apply (length_zero_iff_one (S := hG.S)).mpr at this
   rw [this]
 
-lemma length_smul_neq (s : hG.S) (w : G) : ℓ(s * w) ≠ ℓ(w) := sorry
+lemma length_smul_neq (s : hG.S) (w : G) : ℓ(s * w) ≠ ℓ(w) := by
+  sorry
 
-lemma length_muls_neq (w : G) (s : hG.S) : ℓ(w * s) ≠ ℓ(w) := sorry
+lemma length_muls (w : G) (s : hG.S) : OrderTwoGen.length hG.S (w * s) = OrderTwoGen.length hG.S (s * w⁻¹) := by
+  nth_rw 1 [← inv_inv (w * s)]
+  rw [mul_inv_rev, inv_length_eq_length]
+  simp
 
-lemma length_diff_one {s:hG.S} {g : G} : ℓ(s*g) = ℓ(g) + 1  ∨ ℓ(g) = ℓ(s*g) + 1 :=sorry
+lemma length_muls_neq (w : G) (s : hG.S) : ℓ(w * s) ≠ ℓ(w) := by
+  simp only [HOrderTwoGenGroup.length]
+  rw [length_muls w s, @length_eq_inv_length _ _ _ _ w]
+  exact length_smul_neq s w⁻¹
+
+lemma length_diff_one {s:hG.S} {g : G} : ℓ(s * g) = ℓ(g) + 1 ∨ ℓ(g) = ℓ(s * g) + 1 := by
+  by_cases h : ℓ(s * g) ≤ ℓ(g)
+  · apply fun h ↦ lt_of_le_of_ne h (length_smul_neq s g) at h
+    simp only [HOrderTwoGenGroup.length] at *
+    have := @length_le_length_smul_add_one _ _ _ _ g s
+    have := @length_smul_le_length_add_one _ _ _ _ g s
+    apply Or.intro_left
+    sorry --linarith
+  · sorry
 
 lemma length_smul_of_length_lt {s : hG.S} {w:G} (h : w ≠ 1) (lt: ℓ(s*w) < ℓ(w)) : ℓ(s*w) = ℓ(w) - 1 := sorry
 

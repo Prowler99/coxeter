@@ -314,6 +314,12 @@ lemma length_bound {w1 w2 : G} : ℓ(w1) - ℓ(w2) ≤ ℓ(w1 * w2⁻¹) := by
   simp only [inv_mul_cancel_right] at this
   simp only [tsub_le_iff_right, ge_iff_le, this]
 
+lemma length_of_one : ℓ((1 : G)) = 0 := by
+  rw [length]
+  simp only [Nat.find_eq_zero]
+  use []
+  simp only [List.length_nil, gprod_nil, and_self]
+
 -- Dlevel 1
 lemma length_zero_iff_one {w : G} : ℓ(w) = 0 ↔ w = 1 := by
   constructor
@@ -396,7 +402,7 @@ noncomputable def metric {G : Type*} [Group G] (S : Set G) [@OrderTwoGen G _ S] 
     simp only [Nat.cast_eq_zero, length_zero_iff_one] at h
     rw [← one_mul y, ← h, mul_assoc, mul_left_inv, mul_one]
   edist_dist := fun x y ↦ by
-    simp only [Nonneg.mk_nat_cast, ENNReal.ofReal_natCast]
+    simp only [Nonneg.mk_natCast, ENNReal.ofReal_natCast]
     exact rfl
 
 

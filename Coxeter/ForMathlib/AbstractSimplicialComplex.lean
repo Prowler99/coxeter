@@ -522,5 +522,49 @@ theorem iSup_Facets_le_of_nonempty {ι : Type*} [Nonempty ι] {p : ι → Abstra
     rw [← mem_faces, iSup_faces_of_nonempty]
     apply Set.mem_iUnion_of_mem i ht
 
+/--
+Definition: G is a cone over F with cone point x if
+x ∈ G.vertices - F.vertices
+s ∈ F ⇔ s ∪ {x} ∈ G.
+-/
+
+def Cone (F G: AbstractSimplicialComplex V) (x : V) :=
+  ¬(x ∈ F.vertices) ∧ ∀ s, s ∈ F.faces ↔  s ∪ {x} ∈ G.faces
+
+def Cone_cons (F: AbstractSimplicialComplex V) (x : V) (h : x ∉ vertices F) : AbstractSimplicialComplex V where
+  faces := F.faces ∪ {s ∪ {x} | s ∈ F.faces}
+  empty_mem := Or.inl F.empty_mem
+  lower' := by
+    intro a b h1 h2
+    refine (Set.mem_union b F.faces {y | ∃ s ∈ F.faces, s ∪ {x} = y}).mpr ?_
+    simp only [mem_faces, Set.mem_setOf_eq]
+    rcases h2 with hl | hr
+    · exact Or.inl (F.lower' h1 hl)
+    · obtain ⟨s, hs, heq⟩ := hr 
+      by_cases xinb : x ∈ b
+      · refine Or.inr ⟨s ∩ b, And.intro ?_ ?_⟩
+        exact F.lower' (Finset.inter_subset_left s b) hs
+        rw [← (Finset.singleton_inter_of_mem xinb),
+          ← Finset.union_inter_distrib_right, heq]
+        aesop --exact Finset.inter_eq_right.mpr h1
+      · left
+        have : b ⊆ s := by
+          intro y hy
+          have : y ∈ a := h1 hy
+          /-rw [← heq] at this        
+          simp at this
+          refine Or.resolve_right this ?_
+          contrapose! hy
+          rw [hy]
+          exact xinb-/ 
+          aesop
+        exact F.lower' this hs
+        
+lemma cons_pure (hc : Cone F G x) (hp : Pure F) : Pure G := by sorry
+
+/- the following lemma is not true -/
+-- lemma cons_pure' (hc : isCone G) : Pure G := by sorry
+
+
 
 end AbstractSimplicialComplex

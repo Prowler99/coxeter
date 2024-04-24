@@ -39,7 +39,17 @@ lemma shelling_iff_shelling' {F : AbstractSimplicialComplex V}  [hpure: Pure F] 
 /-- Definition: An abstract simplicial complex `F` is called shellable, if it admits a shelling. -/
 def Shellable (F : AbstractSimplicialComplex F) := ∃ (m : ℕ) (l : Fin m ≃ Facets F), Shelling l
 
--- lemma cone_Shellabe_iff {F G : AbstractSimplicialComplex V} {r : ℕ} [Pure F] [Pure G] (x : V) (hcone: Cone F G x) :
---   Shellable F ↔ Shellable G  := by sorry
+def cone_facet_bijection {F G : AbstractSimplicialComplex V} (h : Cone F G x) : Facets F ≃ Facets G := by  
+  sorry
+  
+lemma cone_Shellable_iff {F G : AbstractSimplicialComplex V} {r : ℕ} [Pure F] [Pure G] (x : V) (hcone: Cone F G x) :
+    Shellable F ↔ Shellable G := by
+  simp [Shellable, Shelling]
+  constructor
+  · rintro ⟨hrf, ⟨m, l, hml⟩⟩
+    -- add x to each set??
+  · rintro ⟨hrf, h⟩
+    -- remove x from each set??
+    
 
 end AbstractSimplicialComplex

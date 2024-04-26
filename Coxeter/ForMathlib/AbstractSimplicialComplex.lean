@@ -47,9 +47,6 @@ instance : SetLike (AbstractSimplicialComplex V) (Finset V) where
 theorem mem_faces {F : AbstractSimplicialComplex V} {x : Finset V} : x ∈ F.faces ↔ x ∈ F :=
   Iff.rfl
 
-lemma eq_iff_faces (F G : AbstractSimplicialComplex V) : F = G ↔ F.faces = G.faces := by
-  constructor <;> (intro h; ext; rw [h])
-
 @[simp]
 def le (G F : AbstractSimplicialComplex V) := G.faces ⊆ F.faces
 
@@ -103,11 +100,7 @@ lemma sInf_isGLB (s : Set (AbstractSimplicialComplex V)) : IsGLB s (sInf s) := b
 
 /-- instance: The set of all ASCs on `V` is a complete lattice with intersections and unions of the set of faces.
 -/
-<<<<<<< HEAD
-instance completeLattice : CompleteLattice (AbstractSimplicialComplex V)
-=======
 instance instCompleteLatticeToAbstractSimplicialComplex : CompleteLattice (AbstractSimplicialComplex V)
->>>>>>> 3009f323d4d7bbccf9105a3478344f905dd7a4fe
 where
   inf := fun F G => ⟨F.faces ∩ G.faces, Set.mem_inter F.empty_mem G.empty_mem, IsLowerSet.inter F.lower' G.lower'⟩
   le_inf := fun _ _ _ hab hac _ ha =>
@@ -138,21 +131,6 @@ lemma sSup_eq_unionSubset {s : Set <| AbstractSimplicialComplex V} (hs : s.Nonem
   · rw [le_sSup_iff]
     exact fun _ hb ↦ Set.iUnion_subset fun i ↦ hb i.2
 
-<<<<<<< HEAD
-def ofEmpty : AbstractSimplicialComplex V where
-  faces := {∅}
-  empty_mem := rfl
-  lower' := Finset.isLowerSet_singleton_empty V
-
-lemma bot_eq_ofEmpty : (⊥ : AbstractSimplicialComplex V) = ofEmpty := by
-  symm
-  rw [eq_bot_iff, le_def, show ofEmpty.faces = {∅} by rfl, Set.singleton_subset_iff]
-  apply (⊥ : AbstractSimplicialComplex V).empty_mem
-
-lemma bot_faces_eq_empty : (⊥ : AbstractSimplicialComplex V).faces = {∅} := by
-  rw [bot_eq_ofEmpty]; rfl
-=======
->>>>>>> 3009f323d4d7bbccf9105a3478344f905dd7a4fe
 
 @[simp]
 lemma sSup_faces_of_nonempty {s : Set (AbstractSimplicialComplex V)} (h : s.Nonempty) : (sSup s).faces = ⋃ F : s, F.1.faces := by
@@ -164,13 +142,13 @@ lemma sup_faces (F G : AbstractSimplicialComplex V) : (F ⊔ G).faces = F.faces 
   rw [show F ⊔ G = sSup s by simp [s], show F.faces ∪ G.faces = ⋃ i : s, i.1.faces by simp [s], sSup_faces_of_nonempty (by simp [s])]
 
 @[simp]
-theorem iInf_faces {ι : Type*} (x : ι → AbstractSimplicialComplex V) : (⨅ i, x i).faces = ⋂ i, (x i).faces := by
+theorem iInf_faces {ι : Type*} (x : ι → AbstractSimplicialComplex V) : (⨅ i, x i).faces = ⨅ i, (x i).faces := by --might be wrong
   unfold iInf
   simp only [sInf_def, Set.iInter_coe_set, Set.mem_range, Set.iInter_exists, Set.iInter_iInter_eq',
     Set.sInf_eq_sInter, Set.sInter_range]
 
 @[simp]
-theorem iSup_faces_of_nonempty {ι : Type*} (x : ι → AbstractSimplicialComplex V) [Nonempty ι] : (⨆ i, x i).faces = ⋃ i, (x i).faces := by
+theorem iSup_faces_of_nonempty {ι : Type*} (x : ι → AbstractSimplicialComplex V) [Nonempty ι] : (⨆ i, x i).faces = ⨆ i, (x i).faces := by
   unfold iSup
   rw [sSup_faces_of_nonempty]
   · simp
@@ -178,39 +156,37 @@ theorem iSup_faces_of_nonempty {ι : Type*} (x : ι → AbstractSimplicialComple
     apply Set.not_nonempty_iff_eq_empty.1 at h
     simp at h
 
-/-- Definition: For any ASC `F`, we denote by `vertices F` the set of vertices of F. -/
+/--
+Definition: For any ASC F, we denote by vertices F the set of vertices of F.
+-/
 def vertices (F : AbstractSimplicialComplex V) : Set V := ⋃ s : F.faces, s.1.toSet
 
 /--
 Definition: Let `F` be an ASC. A maximal face of F is called a facet of F.
 -/
-def isFacet (F : AbstractSimplicialComplex V) (s : Finset V) := s ∈ F ∧ ∀ t ∈ F, s ⊆ t → s = t
+def IsFacet (F : AbstractSimplicialComplex V) (s : Finset V) := s ∈ F ∧ ∀ t ∈ F, s ⊆ t → s = t
 
 /--
 Definition: For any ASC F, we denote by Facets F the set of facets of F.
 -/
-<<<<<<< HEAD
-def Facets (F : AbstractSimplicialComplex V) : Set (Finset V) := { s | F.isFacet s}
-=======
 def Facets (F : AbstractSimplicialComplex V) : Set (Finset V) := {s | F.IsFacet s}
->>>>>>> 3009f323d4d7bbccf9105a3478344f905dd7a4fe
 
 /-- Definition: A pure abstract simplicial complex is an abstract simplicial complex
     where all facets have the same cardinality. -/
-def isPure (F : AbstractSimplicialComplex V) :=
+def IsPure (F : AbstractSimplicialComplex V) :=
   ∀ s ∈ Facets F, ∀ t ∈ Facets F, s.card = t.card
 
 class Pure (F : AbstractSimplicialComplex V) : Prop where
   pure : ∀ s ∈ F.Facets, ∀ t ∈ F.Facets, s.card = t.card
 
 /--Definition: We will call an ASC pure of rank `d` if all its facets has `d` elements-/
-def isPure' (F : AbstractSimplicialComplex V) (d : ℕ) :=
+def IsPure' (F : AbstractSimplicialComplex V) (d : ℕ) :=
   ∀ s ∈ F.Facets, s.card = d
 
 class Pure' (F : AbstractSimplicialComplex V) (d : ℕ) : Prop where
   pure : ∀ s ∈ F.Facets, s.card = d
 
-lemma isPure_iff_isPure' {F : AbstractSimplicialComplex V} : F.isPure ↔ ∃ d, F.isPure' d := by
+lemma isPure_iff_isPure' {F : AbstractSimplicialComplex V} : F.IsPure ↔ ∃ d, F.IsPure' d := by
   by_cases hemp : Nonempty F.Facets
   · constructor
     · let s := Classical.choice (hemp)
@@ -219,19 +195,22 @@ lemma isPure_iff_isPure' {F : AbstractSimplicialComplex V} : F.isPure ↔ ∃ d,
       rw [hIp' s hs, hIp' t ht]
   · constructor
     · intro; use 0
-      simp only [isPure', Finset.card_eq_zero]
+      simp only [IsPure', Finset.card_eq_zero]
       contrapose! hemp
       rcases hemp with ⟨d, ⟨_, _⟩⟩
       use d
     · intro
       simp only [nonempty_subtype, not_exists] at hemp
-      intro s hs
+      intro s hs t _
       exfalso
       exact hemp s hs
 
 lemma pure_def {F : AbstractSimplicialComplex V} [Pure F] : ∀ s ∈ F.Facets, ∀ t ∈ F.Facets, s.card = t.card := Pure.pure
 
-lemma pure_isPure {F : AbstractSimplicialComplex V} [Pure F] : isPure F := pure_def
+lemma pure_isPure {F : AbstractSimplicialComplex V} [Pure F] : IsPure F := pure_def
+
+theorem isPure_iSup {ι : Type*} {p : ι → AbstractSimplicialComplex V} (hp : ∀i : ι, IsPure (p i)) : IsPure (⨆ i : ι, p i) := by
+  sorry
 
 /--
 The rank of an ASC is defined to be the supremum of the cardinals of its faces.
@@ -245,8 +224,6 @@ noncomputable def rank (F : AbstractSimplicialComplex V) : ℕ := iSup fun s : F
 as faces.
 
 Remark: Here we secretly consider the ambient space as the simplex with vertex set V.
-
-Maybe don't use `abbrev` will be better? Because sometimes we don't want `simp` to expand this construction.
 -/
 abbrev closure (s : Set (Finset V))
   : AbstractSimplicialComplex V := sInf {K | s ⊆  K.faces}
@@ -256,9 +233,7 @@ lemma subset_closure_faces (s : Set (Finset V)) : s ⊆ (closure s).faces := by
     imp_self, forall_const]
 
 lemma closure_faces_eq_self (F : AbstractSimplicialComplex V) : closure F.faces = F := by
-  apply le_antisymm
-  · apply sInf_le; simp; rfl
-  · simp
+  sorry
 
 lemma closure_mono {s t: Set (Finset V)} : s ⊆ t → closure s ≤ closure t := by
   intro hst
@@ -266,14 +241,18 @@ lemma closure_mono {s t: Set (Finset V)} : s ⊆ t → closure s ≤ closure t :
   rw [Set.setOf_subset_setOf]
   intro _ h; exact Set.Subset.trans hst h
 
-/-- Lemma: For a `f : Finset V`, the closure of `{f}` is the simplex of `f`.-/
+/--
+Lemma: For a `f : Finset V`, the closure of `{f}` is the simplex of `f`.
+-/
 lemma closure_simplex (f : Finset V) : closure {f} =  simplex f := by
   have h1 : (closure {f}).faces = (simplex f).faces:= by
-    apply Set.Subset.antisymm <;> rw [sInf_def]
-    · rintro s h1
+    apply Set.Subset.antisymm
+    · rw [sInf_def]
+      rintro s h1
       simp only [Set.singleton_subset_iff, mem_faces, Set.mem_setOf_eq, Set.mem_iInter, Set.coe_setOf, Subtype.forall] at h1
       exact h1 (simplex ↑f) fun ⦃_⦄ a => a
-    · rintro s h1
+    · rw [sInf_def]
+      rintro s h1
       apply simplex_face.1 at h1
       simp only [Finset.coe_subset] at h1
       simp only [Set.singleton_subset_iff, mem_faces, Set.mem_setOf_eq, Set.mem_iInter, Set.coe_setOf, Subtype.forall]
@@ -281,28 +260,11 @@ lemma closure_simplex (f : Finset V) : closure {f} =  simplex f := by
       apply mem_faces.1 <| i.lower' h1 <| mem_faces.2 fi
   exact instSetLikeAbstractSimplicialComplexFinset.proof_1 (closure {f}) (simplex ↑f) h1
 
-<<<<<<< HEAD
-def closureSingleton (f : Finset V) : AbstractSimplicialComplex V where
-  faces :=
-    if Nonempty f then
-      {t | t.toSet ⊆ f}
-    else
-      {∅}
-  empty_mem := by
-    by_cases h : Nonempty f <;> simp [h]
-  lower' := by
-    by_cases h : Nonempty f <;> simp [h]
-    · exact antitone_le
-    · exact Finset.isLowerSet_singleton_empty V
-
-def closurePower (s: Set (Finset V)) : AbstractSimplicialComplex V where
-=======
 /-- Explicit construction of `closure s` for `s : Set (Finset V)`-/
 def closurePower (s : Set (Finset V)) : AbstractSimplicialComplex V where
->>>>>>> 3009f323d4d7bbccf9105a3478344f905dd7a4fe
   faces :=
     if Nonempty s then
-      ⋃ f : s, {t | t ⊆ f}
+      ⋃ f : s, {t | t.toSet ⊆ f}
     else
       {∅}
   empty_mem := by
@@ -311,22 +273,15 @@ def closurePower (s : Set (Finset V)) : AbstractSimplicialComplex V where
   lower' := by
     by_cases h : Nonempty s <;> simp [h]
     · refine isLowerSet_iUnion₂ ?_
-      intro t _ a b h1 h2
+      intro t _
+      intro a b h1 h2
       refine' Set.Subset.trans ?_ h2
       congr
     · exact Finset.isLowerSet_singleton_empty V
 
-<<<<<<< HEAD
-theorem Closure_eq_closurePower (s: Set (Finset V)) : closure s = closurePower s := by
-  sorry
-
--- #check Set.mem_iUnion
-lemma face_closure_eq_iSup (s : Set (Finset V)) : (closure s).faces = ⨆ f ∈ s, (closure {f}).faces := by
-=======
 /-- Similar statement for `⨅` is not true.-/
 theorem closure_iUnion_eq_iSup_closure {ι : Type*} (p : ι → Set (Finset V)) :
   closure (⋃ i : ι, p i) = ⨆ i : ι, closure (p i) := by
->>>>>>> 3009f323d4d7bbccf9105a3478344f905dd7a4fe
   apply le_antisymm
   · apply sInf_le
     simp only [Set.iUnion_subset_iff, Set.mem_setOf_eq]
@@ -349,13 +304,14 @@ lemma closure_eq_iSup (s : Set (Finset V)) : closure s = ⨆ f : s,  closure {f.
 
 theorem closure_eq_closurePower (s: Set (Finset V)) : closure s = closurePower s := by
   ext t
-  constructor <;> intro ts
-  · simp only [sInf_def, Set.coe_setOf, Set.mem_setOf_eq, Set.mem_iInter, mem_faces,
-    Subtype.forall] at ts
+  constructor
+  · intro ts
+    rw[closure] at ts
+    simp at ts
     unfold closurePower
     apply ts
     by_cases h : Nonempty s <;> simp [h]
-    · rw [Set.subset_def]
+    · rw[Set.subset_def]
       intro x xs
       simp only [Set.mem_iUnion, Set.mem_setOf_eq, exists_prop]
       use x
@@ -364,28 +320,21 @@ theorem closure_eq_closurePower (s: Set (Finset V)) : closure s = closurePower s
       intro g hg
       rw [h] at hg
       contradiction
-  · rw [closurePower] at ts
+  · intro ts
+    rw[closurePower] at ts
     by_cases h : Nonempty s <;> simp [h]
     · simp [closurePower,h] at ts
       intro K sK
       obtain ⟨f,fs⟩ := ts
-      rw [Set.subset_def] at sK
+      rw[Set.subset_def] at sK
       obtain ⟨fs, tf⟩ := fs
       apply sK at fs
       exact mem_faces.1 <| K.lower' tf <| fs
-    · simp [closurePower, h] at ts
+    · simp [closurePower,h] at ts
       intro K _
       apply mem_faces.1
       rw [ts]
       exact K.empty_mem
-
-lemma closure_faces (s : Set (Finset V)) : (closure s).faces = if Nonempty s then ⋃ f : s, {t : Finset V | t ⊆ f} else {∅} := by
-  rw [closure_eq_closurePower]; rfl
-
-lemma closure_singleton_faces (f : Finset V) : (closure {f}).faces = {t : Finset V | t ⊆ f} := by
-  rw [closure_faces]
-  simp only [nonempty_subtype, Set.mem_singleton_iff, exists_eq, ↓reduceIte, Set.iUnion_coe_set,
-    Set.iUnion_iUnion_eq_left]
 
 instance instNonemptyToAbstractSimplicialComplexContainingSet (s : Set (Finset V)) : Nonempty {x : AbstractSimplicialComplex V // s ⊆ x.faces} := ⟨closure s, subset_closure_faces _⟩
 
@@ -417,59 +366,17 @@ instance instCompleteDistribLatticeToAbstractSimplicialComplex : CompleteDistrib
       intro i is f hf
       rw [Set.mem_iUnion]
       use i
-      simp only [is, iSup_pos, inf_faces, hf]
-    · simp only [Set.not_nonempty_iff_eq_empty.mp hs, sSup_empty, ge_iff_le, bot_le,
-      inf_of_le_right, Set.mem_empty_iff_false, not_false_eq_true, iSup_neg, iSup_bot, le_refl]
+      simp [is, hf]
+    · simp [Set.not_nonempty_iff_eq_empty.mp hs]
   iInf_sup_le_sup_sInf := by
     intro a s
-    simp only [le_def, iInf_faces, sup_faces, sInf_def, Set.iInter_coe_set, Set.union_iInter,
-      Set.subset_iInter_iff]
+    simp [Set.union_iInter]
     intro i is f hf
     rw [Set.mem_iInter] at hf
     replace hf := hf i
-    simp only [is, iInf_pos, sup_faces, Set.mem_union, mem_faces] at hf
-    simp only [Set.mem_union, mem_faces, hf]
+    simp [is] at hf
+    simp [hf]
 }
-
-@[simp]
-theorem closure_singleton_Facets (f : Finset V) : (closure {f}).Facets = {f} := by
-  ext g; constructor <;> intro hg
-  · rcases hg with ⟨hg_mem, hg_max⟩
-    rw [Set.mem_singleton_iff]
-    contrapose! hg_max
-    use f; constructor
-    · apply mem_faces.mp
-      apply Set.mem_of_subset_of_mem <| subset_closure_faces {f}
-      rfl
-    · refine ⟨?_, hg_max⟩
-      rw [← mem_faces, closure_faces] at hg_mem
-      simpa only [nonempty_subtype, Set.mem_singleton_iff, exists_eq, ↓reduceIte,
-        Set.iUnion_coe_set, Set.iUnion_iUnion_eq_left, Set.mem_setOf_eq] using hg_mem
-  · rw [Set.mem_singleton_iff] at hg
-    subst hg; constructor
-    · apply Set.mem_of_subset_of_mem <| subset_closure_faces {g}; rfl
-    · intro t ht
-      rw [← mem_faces, closure_faces] at ht
-      simp only [nonempty_subtype, Set.mem_singleton_iff, exists_eq, ↓reduceIte, Set.iUnion_coe_set,
-        Set.iUnion_iUnion_eq_left, Set.mem_setOf_eq] at ht
-      apply fun h ↦ subset_antisymm h ht
-
-
-theorem isPure_closure_singelton (f : Finset V) : IsPure (closure {f}) := by
-  intro s hs t ht
-  rw [closure_singleton_Facets, Set.mem_singleton_iff] at *
-  rw [hs, ht]
-
-theorem closure_singleton_inter_eq_inf {f g : Finset V} : closure {f ∩ g} = closure {f} ⊓ closure {g} := by
-  simp only [eq_iff_faces, inf_faces, closure_singleton_faces]
-  ext x; constructor <;> {
-    intro h
-    simpa only [Set.mem_inter_iff, Set.mem_setOf_eq, Finset.subset_inter_iff] using h
-  }
-
-theorem isPure_inf_closure_singleton {f g : Finset V} : IsPure (closure {f} ⊓ closure {g}) := by
-  rw [← closure_singleton_inter_eq_inf]
-  apply isPure_closure_singelton
 
 lemma bot_eq_ofEmpty' : (⊥ : AbstractSimplicialComplex V) = closurePower ∅ := by
   symm
@@ -478,49 +385,50 @@ lemma bot_eq_ofEmpty' : (⊥ : AbstractSimplicialComplex V) = closurePower ∅ :
 
 lemma bot_eq_ofEmpty : (⊥ : AbstractSimplicialComplex V) = closure ∅ := by
   symm
-  rw [closure_eq_closurePower]
+  rw[closure_eq_closurePower]
   rw [eq_bot_iff, le_def, show (closurePower ∅).faces = {∅} by simp[closurePower], Set.singleton_subset_iff]
   apply (⊥ : AbstractSimplicialComplex V).empty_mem
 
 @[simp]
 lemma bot_faces_eq_empty : (⊥ : AbstractSimplicialComplex V).faces = {∅} := by
   rw [bot_eq_ofEmpty']
-  simp only [closurePower, nonempty_subtype, Set.mem_empty_iff_false, exists_const, ↓reduceIte]
+  simp[closurePower]
 
-@[simp]
-theorem bot_Facets : (⊥ : AbstractSimplicialComplex V).Facets = {∅} := by
-  ext x; constructor <;> intro hx
-  · rw [← bot_faces_eq_empty, mem_faces]
-    exact hx.1
-  · rw [Set.mem_singleton_iff.mp hx]
-    refine ⟨(⊥ : AbstractSimplicialComplex V).empty_mem, ?_⟩
-    intro t ht _
-    rw [← mem_faces, bot_faces_eq_empty, Set.mem_singleton_iff] at ht
-    exact ht.symm
+/--
+Definition: G is a cone over F with cone point x if
+x ∈ G.vertices - F.vertices
+s ∈ F ⇔ s ∪ {x} ∈ G.
+-/
 
-@[simp]
-theorem isPure_bot : IsPure (⊥ : AbstractSimplicialComplex V) := by
-  intro s hs t ht
-  rw [bot_Facets, Set.mem_singleton_iff] at *
-  rw [hs, ht]
+def Cone (F G: AbstractSimplicialComplex V) (x : V) :=
+  ¬(x ∈ F.vertices) ∧ ∀ s, s ∈ F.faces ↔  s ∪ {x} ∈ G.faces
 
-@[simp]
-theorem iSup_faces_of_isEmpty {ι : Type*} [IsEmpty ι] (x : ι → AbstractSimplicialComplex V) : (⨆ i, x i).faces = {∅} := by
-  simp only [iSup_of_empty, bot_faces_eq_empty]
 
-theorem iSup_Facets_le_of_nonempty {ι : Type*} [Nonempty ι] {p : ι → AbstractSimplicialComplex V} : (⨆ i : ι, p i).Facets ≤ ⋃ i : ι, (p i).Facets := by
-  intro a ha
-  rw [Set.mem_iUnion]
-  rcases ha with ⟨ha_mem, ha_max⟩
-  rw [← mem_faces, iSup_faces_of_nonempty, Set.mem_iUnion] at ha_mem
-  rcases ha_mem with ⟨i, hi⟩
-  use i
-  constructor
-  · exact mem_faces.mpr hi
-  · intro t ht
-    apply ha_max
-    rw [← mem_faces, iSup_faces_of_nonempty]
-    apply Set.mem_iUnion_of_mem i ht
+def Cone_cons (F: AbstractSimplicialComplex V) (x : V) (h : x ∉ vertices F) : AbstractSimplicialComplex V where
+  faces := F.faces ∪ {s ∪ {x} | s ∈ F.faces}
+  empty_mem := Or.inl F.empty_mem
+  lower' := by
+    intro a b h1 h2
+    refine (Set.mem_union b F.faces {y | ∃ s ∈ F.faces, s ∪ {x} = y}).mpr ?_
+    simp only [mem_faces, Set.mem_setOf_eq]
+    rcases h2 with hl | hr
+    · exact Or.inl (F.lower' h1 hl)
+    · obtain ⟨s, hs, heq⟩ := hr
+      by_cases xinb : x ∈ b
+      · refine Or.inr ⟨s ∩ b, And.intro ?_ ?_⟩
+        exact F.lower' (Finset.inter_subset_left s b) hs
+        rw [← (Finset.singleton_inter_of_mem xinb),
+          ← Finset.union_inter_distrib_right, heq]
+        aesop
+      · left
+        have : b ⊆ s := by
+          intro y hy
+          have : y ∈ a := h1 hy
+          aesop
+        exact F.lower' this hs
 
+def isCone (G: AbstractSimplicialComplex V) := ∃ F x, Cone F G x
+
+lemma cons_pure (hc : Cone F G x) (hp : Pure F) : Pure G := by sorry
 
 end AbstractSimplicialComplex

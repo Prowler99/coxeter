@@ -426,6 +426,7 @@ def Cone_cons (F: AbstractSimplicialComplex V) (x : V) (h : x ∉ vertices F) : 
           have : y ∈ a := h1 hy
           aesop
         exact F.lower' this hs
+        
 
 def isCone (G: AbstractSimplicialComplex V) := ∃ F x, Cone F G x
 
